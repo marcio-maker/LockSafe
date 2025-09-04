@@ -3,64 +3,155 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Autenticação - Exemplo</title>
+  <title>Autenticação - Versão Final</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f4f6f9;
+      font-family: 'Poppins', sans-serif;
+      color: #e0e0e0;
       display: flex;
       justify-content: center;
-      align-items: flex-start;
-      padding: 40px;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      perspective: 1000px;
+      overflow: hidden;
+      background: url('https://i.gifer.com/origin/9c/9c5ebe3cd20e56a8edcdb7dcd194ddfd.gif') no-repeat center center fixed;
+      background-size: cover;
     }
+
+    body::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.55); /* Aumentado para maior contraste */
+        z-index: -1;
+    }
+
     .container {
-      width: 400px;
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      padding: 20px;
+      width: 450px;
+      background: rgba(255, 255, 255, 0.05); /* Opacidade mais baixa para um vidro mais "limpo" */
+      border-radius: 20px;
+      box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.05), /* Borda interna suave */
+                  0 10px 40px rgba(0, 0, 0, 0.6); /* Sombra externa mais forte */
+      backdrop-filter: blur(25px); /* Desfoque mais intenso */
+      -webkit-backdrop-filter: blur(25px);
+      border: 1px solid rgba(255, 255, 255, 0.15); /* Borda mais sutil */
+      padding: 40px;
+      animation: fadeIn 1s ease-in-out;
+      transition: transform 0.2s ease-out;
+      transform-style: preserve-3d;
+      position: relative;
+    }
+    
+    .container::before {
+        content: '';
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        right: 10px;
+        bottom: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 15px;
+        pointer-events: none;
+        z-index: 1;
+    }
+    
+    .content-wrapper {
+        transform-style: preserve-3d;
+    }
+
+    .content-wrapper h2 {
+      transform: translateZ(50px); /* Título se move mais para fora */
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-30px) rotateX(10deg); }
+      to { opacity: 1; transform: translateY(0) rotateX(0deg); }
     }
     h2 {
       text-align: center;
-      margin-bottom: 20px;
-      color: #333;
+      margin-bottom: 30px;
+      color: #fff;
+      font-weight: 600;
+      text-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
     }
     form {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 15px;
     }
     input {
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
+      padding: 12px 15px;
+      border: none;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+      transition: all 0.3s ease;
+      font-size: 16px;
+      transform: translateZ(10px); /* Input se move levemente */
+    }
+    input::placeholder {
+      color: #c0c0c0;
+    }
+    input:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px #6daee2, 0 0 15px rgba(109, 174, 226, 0.5);
+      background: rgba(255, 255, 255, 0.25);
     }
     button {
-      padding: 10px;
+      padding: 12px;
       border: none;
-      background: #007bff;
+      background: linear-gradient(90deg, #4a90e2 0%, #6daee2 100%);
       color: white;
       font-weight: bold;
-      border-radius: 4px;
+      border-radius: 8px;
       cursor: pointer;
+      transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+      font-size: 16px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      transform: translateZ(20px); /* Botão se move mais do que o input */
     }
     button:hover {
-      background: #0056b3;
+      background: linear-gradient(90deg, #357ABD 0%, #4a90e2 100%);
+      transform: translateY(-5px) scale(1.03) translateZ(40px); /* Aumenta a profundidade no hover */
+      box-shadow: 0 8px 20px rgba(74, 144, 226, 0.6);
+    }
+    button .loader {
+      display: inline-block;
+      margin-left: 10px;
+      vertical-align: middle;
     }
     .tabs {
       display: flex;
-      justify-content: space-between;
-      margin-bottom: 15px;
+      margin-bottom: 25px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transform: translateZ(15px); /* Tabs se movem levemente */
     }
     .tabs button {
       flex: 1;
-      margin: 0 5px;
-      background: #e9ecef;
-      color: #333;
+      padding: 12px;
+      border-radius: 0;
+      background: transparent;
+      color: #b0b0b0;
+      border-bottom: 2px solid transparent;
+      transition: all 0.3s ease;
+      font-weight: 500;
     }
     .tabs button.active {
-      background: #007bff;
+      background: rgba(255, 255, 255, 0.1);
       color: white;
+      border-bottom: 2px solid #6daee2;
     }
     .tab-content {
       display: none;
@@ -70,76 +161,155 @@
     }
     .msg {
       text-align: center;
-      margin-top: 10px;
-      color: #d9534f;
-      font-weight: bold;
+      margin-top: 15px;
+      font-weight: 500;
+      min-height: 20px;
+      color: #ff8e8e;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+    .success {
+      color: #8bffb4;
     }
     ul {
       list-style: none;
       padding: 0;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      margin-top: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      transform: translateZ(5px); /* Lista se move pouco */
     }
     ul li {
-      padding: 5px;
-      border-bottom: 1px solid #ddd;
+      padding: 12px 15px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background 0.3s ease;
+    }
+    ul li:last-child {
+      border-bottom: none;
+    }
+    ul li:hover {
+        background: rgba(255, 255, 255, 0.15);
+    }
+    .loader {
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      border-top: 4px solid #6daee2;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      animation: spin 1s linear infinite;
+      display: none;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h2>Sistema de Autenticação</h2>
+  <div class="container" id="mainContainer">
+    <div class="content-wrapper">
+      <h2>Sistema de Autenticação</h2>
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="login">Login</button>
+        <button class="tab-btn" data-tab="cadastro">Cadastro</button>
+        <button class="tab-btn" data-tab="redefinir">Redefinir</button>
+        <button class="tab-btn" data-tab="usuarios">Usuários</button>
+      </div>
 
-    <div class="tabs">
-      <button class="tab-btn active" data-tab="login">Login</button>
-      <button class="tab-btn" data-tab="cadastro">Cadastro</button>
-      <button class="tab-btn" data-tab="redefinir">Redefinir</button>
-      <button class="tab-btn" data-tab="usuarios">Usuários</button>
-    </div>
+      <div id="login" class="tab-content active">
+        <form id="loginForm">
+          <input type="email" name="email" placeholder="Email" required />
+          <input type="password" name="senha" placeholder="Senha" required />
+          <button type="submit">
+            Entrar <div class="loader"></div>
+          </button>
+        </form>
+        <p class="msg" id="loginMsg"></p>
+      </div>
 
-    <!-- Login -->
-    <div id="login" class="tab-content active">
-      <form id="loginForm">
-        <input type="email" name="email" placeholder="Email" required />
-        <input type="password" name="senha" placeholder="Senha" required />
-        <button type="submit">Entrar</button>
-      </form>
-      <p class="msg" id="loginMsg"></p>
-    </div>
+      <div id="cadastro" class="tab-content">
+        <form id="cadastroForm">
+          <input type="text" name="nome" placeholder="Nome" required />
+          <input type="email" name="email" placeholder="Email" required />
+          <input type="password" name="senha" placeholder="Senha" required />
+          <input type="password" name="confirmacao" placeholder="Confirme a senha" required />
+          <button type="submit">
+            Cadastrar <div class="loader"></div>
+          </button>
+        </form>
+        <p class="msg" id="cadastroMsg"></p>
+      </div>
 
-    <!-- Cadastro -->
-    <div id="cadastro" class="tab-content">
-      <form id="cadastroForm">
-        <input type="text" name="nome" placeholder="Nome" required />
-        <input type="email" name="email" placeholder="Email" required />
-        <input type="password" name="senha" placeholder="Senha" required />
-        <input type="password" name="confirmacao" placeholder="Confirme a senha" required />
-        <button type="submit">Cadastrar</button>
-      </form>
-      <p class="msg" id="cadastroMsg"></p>
-    </div>
+      <div id="redefinir" class="tab-content">
+        <form id="redefinirForm">
+          <input type="email" name="email" placeholder="Email" required />
+          <input type="text" name="codigo" placeholder="Código de 6 dígitos" />
+          <input type="password" name="novaSenha" placeholder="Nova senha" />
+          <button type="submit">
+            Redefinir <div class="loader"></div>
+          </button>
+        </form>
+        <p class="msg" id="redefinirMsg"></p>
+      </div>
 
-    <!-- Redefinir Senha -->
-    <div id="redefinir" class="tab-content">
-      <form id="redefinirForm">
-        <input type="email" name="email" placeholder="Email" required />
-        <input type="text" name="codigo" placeholder="Código de 6 dígitos" />
-        <input type="password" name="novaSenha" placeholder="Nova senha" />
-        <button type="submit">Redefinir</button>
-      </form>
-      <p class="msg" id="redefinirMsg"></p>
-    </div>
-
-    <!-- Usuários -->
-    <div id="usuarios" class="tab-content">
-      <button onclick="carregarUsuarios()">Carregar Usuários</button>
-      <ul id="listaUsuarios"></ul>
+      <div id="usuarios" class="tab-content">
+        <button onclick="carregarUsuarios()">Carregar Usuários</button>
+        <ul id="listaUsuarios"></ul>
+      </div>
     </div>
   </div>
 
   <script>
-    const baseURL = "http://localhost:3000/api"; // depois troca pela URL da Render
-    let token = null;
+    const baseURL = "http://localhost:3000/api";
+    let token = localStorage.getItem("token") || null;
 
-    // Tabs
+    const showMessage = (elementId, message, isSuccess = false) => {
+      const msgElement = document.getElementById(elementId);
+      msgElement.textContent = message;
+      msgElement.className = `msg ${isSuccess ? 'success' : ''}`;
+    };
+
+    const setLoading = (formId, isLoading) => {
+      const button = document.querySelector(`#${formId} button[type="submit"]`);
+      const loader = button.querySelector('.loader');
+
+      button.disabled = isLoading;
+      if (isLoading) {
+        loader.style.display = 'inline-block';
+        button.textContent = 'Aguarde...';
+        button.appendChild(loader);
+      } else {
+        loader.style.display = 'none';
+        if (formId === 'loginForm') button.innerHTML = 'Entrar <div class="loader"></div>';
+        else if (formId === 'cadastroForm') button.innerHTML = 'Cadastrar <div class="loader"></div>';
+        else if (formId === 'redefinirForm') button.innerHTML = 'Redefinir <div class="loader"></div>';
+      }
+    };
+
+    const postData = async (url, data) => {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+      return res.json();
+    };
+
+    const fetchData = async (url, token) => {
+      const res = await fetch(url, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!res.ok) {
+        throw new Error("Erro na requisição. Verifique o login.");
+      }
+      return res.json();
+    };
+
     const tabBtns = document.querySelectorAll(".tab-btn");
     const tabContents = document.querySelectorAll(".tab-content");
     tabBtns.forEach(btn => {
@@ -148,87 +318,115 @@
         tabContents.forEach(c => c.classList.remove("active"));
         btn.classList.add("active");
         document.getElementById(btn.dataset.tab).classList.add("active");
+        showMessage("loginMsg", "");
+        showMessage("cadastroMsg", "");
+        showMessage("redefinirMsg", "");
+        if (btn.dataset.tab === 'usuarios') {
+            carregarUsuarios();
+        }
       });
     });
 
-    // Login
     document.getElementById("loginForm").addEventListener("submit", async e => {
       e.preventDefault();
       const form = new FormData(e.target);
       const data = Object.fromEntries(form.entries());
+      setLoading("loginForm", true);
       try {
-        const res = await fetch(`${baseURL}/login`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data)
-        });
-        const result = await res.json();
+        const result = await postData(`${baseURL}/login`, data);
         if (result.token) {
           token = result.token;
-          document.getElementById("loginMsg").textContent = "Login realizado!";
           localStorage.setItem("token", token);
+          showMessage("loginMsg", "Login realizado!", true);
         } else {
-          document.getElementById("loginMsg").textContent = result.error;
+          showMessage("loginMsg", result.error || "Credenciais inválidas.");
         }
       } catch (err) {
-        document.getElementById("loginMsg").textContent = "Erro no login";
+        showMessage("loginMsg", "Erro no login. Verifique sua conexão ou tente novamente.");
+      } finally {
+        setLoading("loginForm", false);
       }
     });
 
-    // Cadastro
     document.getElementById("cadastroForm").addEventListener("submit", async e => {
       e.preventDefault();
       const form = new FormData(e.target);
       const data = Object.fromEntries(form.entries());
+      if (data.senha !== data.confirmacao) {
+        showMessage("cadastroMsg", "As senhas não coincidem.");
+        return;
+      }
+      setLoading("cadastroForm", true);
       try {
-        const res = await fetch(`${baseURL}/cadastro`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data)
-        });
-        const result = await res.json();
-        document.getElementById("cadastroMsg").textContent = result.message || result.error;
+        const result = await postData(`${baseURL}/cadastro`, data);
+        showMessage("cadastroMsg", result.message || result.error, result.message);
       } catch (err) {
-        document.getElementById("cadastroMsg").textContent = "Erro no cadastro";
+        showMessage("cadastroMsg", "Erro no cadastro. Tente novamente.");
+      } finally {
+        setLoading("cadastroForm", false);
       }
     });
 
-    // Redefinir Senha
     document.getElementById("redefinirForm").addEventListener("submit", async e => {
       e.preventDefault();
       const form = new FormData(e.target);
       const data = Object.fromEntries(form.entries());
+      setLoading("redefinirForm", true);
       try {
-        const res = await fetch(`${baseURL}/redefinir-senha`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data)
-        });
-        const result = await res.json();
-        document.getElementById("redefinirMsg").textContent = result.message || result.error;
+        const result = await postData(`${baseURL}/redefinir-senha`, data);
+        showMessage("redefinirMsg", result.message || result.error, result.message);
       } catch (err) {
-        document.getElementById("redefinirMsg").textContent = "Erro na redefinição";
+        showMessage("redefinirMsg", "Erro na redefinição. Tente novamente.");
+      } finally {
+        setLoading("redefinirForm", false);
       }
     });
 
-    // Usuários
     async function carregarUsuarios() {
+      const lista = document.getElementById("listaUsuarios");
+      lista.innerHTML = `<li style="justify-content: center;"><div class="loader" style="display: block; margin: 10px auto;"></div></li>`;
       try {
-        const res = await fetch(`${baseURL}/usuarios`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-        });
-        const data = await res.json();
-        const ul = document.getElementById("listaUsuarios");
-        ul.innerHTML = "";
-        data.forEach(u => {
-          const li = document.createElement("li");
-          li.textContent = `${u.nome} - ${u.email}`;
-          ul.appendChild(li);
-        });
+        const data = await fetchData(`${baseURL}/usuarios`, token);
+        lista.innerHTML = "";
+        if (data.length === 0) {
+            lista.innerHTML = `<li style="justify-content: center;">Nenhum usuário encontrado.</li>`;
+        } else {
+            data.forEach(u => {
+                const li = document.createElement("li");
+                li.textContent = `${u.nome} - ${u.email}`;
+                lista.appendChild(li);
+            });
+        }
       } catch (err) {
-        alert("Erro ao carregar usuários");
+        lista.innerHTML = `<li style="justify-content: center; color: #ff8e8e;">${err.message || "Erro ao carregar usuários. Verifique o login."}</li>`;
       }
     }
+
+    const mainContainer = document.getElementById('mainContainer');
+    const contentWrapper = document.querySelector('.content-wrapper');
+
+    mainContainer.addEventListener('mousemove', (e) => {
+      const { clientX, clientY } = e;
+      const { left, top, width, height } = mainContainer.getBoundingClientRect();
+      
+      const centerX = left + width / 2;
+      const centerY = top + height / 2;
+
+      const rotateX = (clientY - centerY) / height * 30;
+      const rotateY = (clientX - centerX) / width * -30;
+      
+      mainContainer.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+
+      // Efeito de Parallax: movimenta o wrapper do conteúdo na direção oposta
+      const parallaxX = (clientX - centerX) / width * -15;
+      const parallaxY = (clientY - centerY) / height * -15;
+      contentWrapper.style.transform = `translate(${parallaxX}px, ${parallaxY}px) translateZ(0px)`;
+    });
+
+    mainContainer.addEventListener('mouseleave', () => {
+      mainContainer.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg)`;
+      contentWrapper.style.transform = `translate(0, 0) translateZ(0px)`;
+    });
   </script>
 </body>
 </html>
