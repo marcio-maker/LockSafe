@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Autenticação - Exemplo</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f9;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px;
+    }
+    .container {
+      width: 400px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      padding: 20px;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    input {
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    button {
+      padding: 10px;
+      border: none;
+      background: #007bff;
+      color: white;
+      font-weight: bold;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .tabs {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 15px;
+    }
+    .tabs button {
+      flex: 1;
+      margin: 0 5px;
+      background: #e9ecef;
+      color: #333;
+    }
+    .tabs button.active {
+      background: #007bff;
+      color: white;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .msg {
+      text-align: center;
+      margin-top: 10px;
+      color: #d9534f;
+      font-weight: bold;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    ul li {
+      padding: 5px;
+      border-bottom: 1px solid #ddd;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Sistema de Autenticação</h2>
+
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="login">Login</button>
+      <button class="tab-btn" data-tab="cadastro">Cadastro</button>
+      <button class="tab-btn" data-tab="redefinir">Redefinir</button>
+      <button class="tab-btn" data-tab="usuarios">Usuários</button>
+    </div>
+
+    <!-- Login -->
+    <div id="login" class="tab-content active">
+      <form id="loginForm">
+        <input type="email" name="email" placeholder="Email" required />
+        <input type="password" name="senha" placeholder="Senha" required />
+        <button type="submit">Entrar</button>
+      </form>
+      <p class="msg" id="loginMsg"></p>
+    </div>
+
+    <!-- Cadastro -->
+    <div id="cadastro" class="tab-content">
+      <form id="cadastroForm">
+        <input type="text" name="nome" placeholder="Nome" required />
+        <input type="email" name="email" placeholder="Email" required />
+        <input type="password" name="senha" placeholder="Senha" required />
+        <input type="password" name="confirmacao" placeholder="Confirme a senha" required />
+        <button type="submit">Cadastrar</button>
+      </form>
+      <p class="msg" id="cadastroMsg"></p>
+    </div>
+
+    <!-- Redefinir Senha -->
+    <div id="redefinir" class="tab-content">
+      <form id="redefinirForm">
+        <input type="email" name="email" placeholder="Email" required />
+        <input type="text" name="codigo" placeholder="Código de 6 dígitos" />
+        <input type="password" name="novaSenha" placeholder="Nova senha" />
+        <button type="submit">Redefinir</button>
+      </form>
+      <p class="msg" id="redefinirMsg"></p>
+    </div>
+
+    <!-- Usuários -->
+    <div id="usuarios" class="tab-content">
+      <button onclick="carregarUsuarios()">Carregar Usuários</button>
+      <ul id="listaUsuarios"></ul>
+    </div>
+  </div>
+
+  <script>
+    const baseURL = "http://localhost:3000/api"; // depois troca pela URL da Render
+    let token = null;
+
+    // Tabs
+    const tabBtns = document.querySelectorAll(".tab-btn");
+    const tabContents = document.querySelectorAll(".tab-content");
+    tabBtns.forEach(btn => {
+      btn.addEventListener("click", () => {
+        tabBtns.forEach(b => b.classList.remove("active"));
+        tabContents.forEach(c => c.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById(btn.dataset.tab).classList.add("active");
+      });
+    });
+
+    // Login
+    document.getElementById("loginForm").addEventListener("submit", async e => {
+      e.preventDefault();
+      const form = new FormData(e.target);
+      const data = Object.fromEntries(form.entries());
+      try {
+        const res = await fetch(`${baseURL}/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
+        const result = await res.json();
+        if (result.token) {
+          token = result.token;
+          document.getElementById("loginMsg").textContent = "Login realizado!";
+          localStorage.setItem("token", token);
+        } else {
+          document.getElementById("loginMsg").textContent = result.error;
+        }
+      } catch (err) {
+        document.getElementById("loginMsg").textContent = "Erro no login";
+      }
+    });
+
+    // Cadastro
+    document.getElementById("cadastroForm").addEventListener("submit", async e => {
+      e.preventDefault();
+      const form = new FormData(e.target);
+      const data = Object.fromEntries(form.entries());
+      try {
+        const res = await fetch(`${baseURL}/cadastro`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
+        const result = await res.json();
+        document.getElementById("cadastroMsg").textContent = result.message || result.error;
+      } catch (err) {
+        document.getElementById("cadastroMsg").textContent = "Erro no cadastro";
+      }
+    });
+
+    // Redefinir Senha
+    document.getElementById("redefinirForm").addEventListener("submit", async e => {
+      e.preventDefault();
+      const form = new FormData(e.target);
+      const data = Object.fromEntries(form.entries());
+      try {
+        const res = await fetch(`${baseURL}/redefinir-senha`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
+        const result = await res.json();
+        document.getElementById("redefinirMsg").textContent = result.message || result.error;
+      } catch (err) {
+        document.getElementById("redefinirMsg").textContent = "Erro na redefinição";
+      }
+    });
+
+    // Usuários
+    async function carregarUsuarios() {
+      try {
+        const res = await fetch(`${baseURL}/usuarios`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+        });
+        const data = await res.json();
+        const ul = document.getElementById("listaUsuarios");
+        ul.innerHTML = "";
+        data.forEach(u => {
+          const li = document.createElement("li");
+          li.textContent = `${u.nome} - ${u.email}`;
+          ul.appendChild(li);
+        });
+      } catch (err) {
+        alert("Erro ao carregar usuários");
+      }
+    }
+  </script>
+</body>
+</html>
