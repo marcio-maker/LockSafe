@@ -29,19 +29,20 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0, 0, 0, 0.55); /* Aumentado para maior contraste */
+        background: rgba(0, 0, 0, 0.55);
         z-index: -1;
     }
 
     .container {
-      width: 450px;
-      background: rgba(255, 255, 255, 0.05); /* Opacidade mais baixa para um vidro mais "limpo" */
+      width: 90%; /* Largura fluida para mobile */
+      max-width: 450px; /* Largura máxima para desktop */
+      background: rgba(255, 255, 255, 0.05);
       border-radius: 20px;
-      box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.05), /* Borda interna suave */
-                  0 10px 40px rgba(0, 0, 0, 0.6); /* Sombra externa mais forte */
-      backdrop-filter: blur(25px); /* Desfoque mais intenso */
+      box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.05),
+                  0 10px 40px rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(25px);
       -webkit-backdrop-filter: blur(25px);
-      border: 1px solid rgba(255, 255, 255, 0.15); /* Borda mais sutil */
+      border: 1px solid rgba(255, 255, 255, 0.15);
       padding: 40px;
       animation: fadeIn 1s ease-in-out;
       transition: transform 0.2s ease-out;
@@ -67,7 +68,7 @@
     }
 
     .content-wrapper h2 {
-      transform: translateZ(50px); /* Título se move mais para fora */
+      transform: translateZ(50px);
     }
 
     @keyframes fadeIn {
@@ -94,7 +95,7 @@
       color: #fff;
       transition: all 0.3s ease;
       font-size: 16px;
-      transform: translateZ(10px); /* Input se move levemente */
+      transform: translateZ(10px);
     }
     input::placeholder {
       color: #c0c0c0;
@@ -117,11 +118,11 @@
       position: relative;
       overflow: hidden;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-      transform: translateZ(20px); /* Botão se move mais do que o input */
+      transform: translateZ(20px);
     }
     button:hover {
       background: linear-gradient(90deg, #357ABD 0%, #4a90e2 100%);
-      transform: translateY(-5px) scale(1.03) translateZ(40px); /* Aumenta a profundidade no hover */
+      transform: translateY(-5px) scale(1.03) translateZ(40px);
       box-shadow: 0 8px 20px rgba(74, 144, 226, 0.6);
     }
     button .loader {
@@ -136,7 +137,7 @@
       border-radius: 10px;
       overflow: hidden;
       border: 1px solid rgba(255, 255, 255, 0.1);
-      transform: translateZ(15px); /* Tabs se movem levemente */
+      transform: translateZ(15px);
     }
     .tabs button {
       flex: 1;
@@ -179,7 +180,7 @@
       border: 1px solid rgba(255, 255, 255, 0.15);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
-      transform: translateZ(5px); /* Lista se move pouco */
+      transform: translateZ(5px);
     }
     ul li {
       padding: 12px 15px;
@@ -207,6 +208,34 @@
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
+    }
+
+    /* Media Query para telas menores */
+    @media (max-width: 600px) {
+        .container {
+            width: 90%;
+            padding: 20px; /* Reduz o padding interno em telas menores */
+        }
+
+        .tabs {
+            flex-direction: column; /* Coloca os botões das abas em coluna */
+        }
+        .tabs button {
+            border-bottom: none;
+            border-radius: 8px; /* Arredonda todos os cantos em mobile */
+            margin-bottom: 5px; /* Adiciona espaçamento entre os botões */
+        }
+        .tabs button.active {
+             border-bottom: none;
+             box-shadow: 0 0 0 2px #6daee2; /* Adiciona um destaque de borda */
+        }
+        
+        .container::before {
+             top: 5px;
+             left: 5px;
+             right: 5px;
+             bottom: 5px;
+        }
     }
   </style>
 </head>
@@ -417,7 +446,6 @@
       
       mainContainer.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
 
-      // Efeito de Parallax: movimenta o wrapper do conteúdo na direção oposta
       const parallaxX = (clientX - centerX) / width * -15;
       const parallaxY = (clientY - centerY) / height * -15;
       contentWrapper.style.transform = `translate(${parallaxX}px, ${parallaxY}px) translateZ(0px)`;
