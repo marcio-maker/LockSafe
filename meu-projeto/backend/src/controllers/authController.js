@@ -1,75 +1,123 @@
-import { useEffect, useState } from 'react'
+import { supabase } from '../config/supabaseClient.js';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
-function App() {
-  const [health, setHealth] = useState(null)
-  const [registerResult, setRegisterResult] = useState(null)
-
-  // Teste da rota health
-  const testHealth = async () => {
+const authController = {
+  // Registro de usuário
+  async register(req, res) {
     try {
-      const response = await fetch('http://localhost:3001/api/health')
-      const data = await response.json()
-      setHealth(data)
-      console.log('✅ Health:', data)
-    } catch (error) {
-      console.error('❌ Health error:', error)
-    }
-  }
-
-  // Teste de registro COM O CAMPO CORRETO "senha"
-  const testRegister = async () => {
-    try {
-      const response = await fetch('http://localhost:3001/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          nome: 'Usuario Teste',
-          email: `teste${Math.random().toString(36).substring(7)}@email.com`, // Email único
-          senha: 'senha123' // ✅ Campo CORRETO: "senha" (não "password")
-        })
-      })
-      const data = await response.json()
-      setRegisterResult(data)
-      console.log('✅ Register:', data)
-    } catch (error) {
-      console.error('❌ Register error:', error)
-    }
-  }
-
-  useEffect(() => {
-    testHealth()
-  }, [])
-
-  return (
-    <div style={{ padding: '20px' }}>
-      <h1>🔒 LockSafe - Teste de Conexão</h1>
+      console.log('📥 Dados recebidos:', req.body);
       
-      <button onClick={testHealth} style={{ margin: '10px', padding: '10px' }}>
-        🩺 Testar Health
-      </button>
+      const { nome, email, senha } = req.body;
 
-      <button onClick={testRegister} style={{ margin: '10px', padding: '10px' }}>
-        📝 Testar Registro
-      </button>
+      // Verificar se usuário já existe
+      console.log('🔍 Verificando usuário existente...');
+      const { data: existingUser, error: checkError } = await supabase
+        .from('users')
+        .select('*')
+        .eq('email', email)
+        .single();
 
-      {health && (
-        <div style={{ color: 'green', margin: '10px' }}>
-          <h3>✅ Health Check:</h3>
-          <pre>{JSON.stringify(health, null, 2)}</pre>
-        </div>
-      )}
+      if (checkError && checkError.code !== 'PGRST116') {
+        console.error('Erro na verificação:', checkError);
+        throw checkError;
+      }
 
-      {registerResult && (
-        <div style={{ 
-          color: registerResult.message ? 'green' : 'red', 
-          margin: '10px' 
-        }}>
-          <h3>📝 Resultado Registro:</h3>
-          <pre>{JSON.stringify(registerResult, null, 2)}</pre>
-        </div>
-      )}
-    </div>
-  )
-}
+      if (existingUser) {
+        return res.status(400).json({ error: 'Usuário já existe' });
+      }
 
-export default App
+      // Criptografar senha
+      const hashedPassword = await bcrypt.hash(senha, 10);
+
+      // Criar usuário no Supabase
+      console.log('📝 Criando usuário...');
+      const { data: user, error: insertError } = await supabase
+        .from('users')
+        .insert([
+          {
+            nome,
+            email,
+            senha: hashedPassword
+          }
+        ])
+        .select()
+        .single();
+
+      if (insertError) {
+        console.error('Erro ao criar usuário:', insertError);
+        throw insertError;
+      }
+
+      console.log('✅ Usuário criado:', user);
+
+      // Gerar token JWT
+      const token = jwt.sign(
+        { id: user.id, email: user.email },
+        process.env.JWT_SECRET || 'seu-segredo-aqui',
+        { expiresIn: '24h' }
+      );
+
+      res.status(201).json({
+        message: 'Usuário criado com sucesso',
+        user: {
+          id: user.id,
+          nome: user.nome,
+          email: user.email
+        },
+        token
+      });
+
+    } catch (error) {
+      console.error('❌ Erro no registro:', error);
+      res.status(500).json({ error: 'Erro interno do servidor: ' + error.message });
+    }
+  },
+
+  // Login de usuário
+  async login(req, res) {
+    try {
+      const { email, senha } = req.body;
+
+      // Buscar usuário no Supabase
+      const { data: user, error: userError } = await supabase
+        .from('users')
+        .select('*')
+        .eq('email', email)
+        .single();
+
+      if (userError || !user) {
+        return res.status(400).json({ error: 'Credenciais inválidas' });
+      }
+
+      // Verificar senha
+      const validPassword = await bcrypt.compare(senha, user.senha);
+      if (!validPassword) {
+        return res.status(400).json({ error: 'Credenciais inválidas' });
+      }
+
+      // Gerar token JWT
+      const token = jwt.sign(
+        { id: user.id, email: user.email },
+        process.env.JWT_SECRET || 'seu-segredo-aqui',
+        { expiresIn: '24h' }
+      );
+
+      res.json({
+        message: 'Login realizado com sucesso',
+        user: {
+          id: user.id,
+          nome: user.nome,
+          email: user.email
+        },
+        token
+      });
+
+    } catch (error) {
+      console.error('Erro no login:', error);
+      res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+  }
+};
+
+export { authController };

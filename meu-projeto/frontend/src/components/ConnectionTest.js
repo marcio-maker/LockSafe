@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { healthService } from '../services/api';
 
 export default function ConnectionTest() {
   const [status, setStatus] = useState('testing');
@@ -11,9 +10,10 @@ export default function ConnectionTest() {
 
   const testConnection = async () => {
     try {
-      const data = await healthService.check();
+      const res = await fetch("http://localhost:3001/api/health");
+      const data = await res.json();
       setStatus('success');
-      setMessage(`✅ ${data.message} (${data.timestamp})`);
+      setMessage(`✅ Backend conectado (Status: ${data.status})`);
     } catch (error) {
       setStatus('error');
       setMessage(`❌ Erro de conexão: ${error.message}`);

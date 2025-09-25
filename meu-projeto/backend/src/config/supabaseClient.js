@@ -8,4 +8,4 @@ if (!supabaseUrl || !supabaseKey) throw new Error("❌ SUPABASE_URL e SUPABASE_A
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-export default supabase;
+export { supabase };
