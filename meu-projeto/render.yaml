@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: locksafe-backend
+    env: node
+    plan: free
+    buildCommand: cd backend && npm install
+    startCommand: cd backend && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: SUPABASE_URL
+        value: https://kvcwvwusndwnocdhjgor.supabase.co
+      - key: SUPABASE_ANON_KEY
+        value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt2Y3d2d3VzbmR3bm9jZGhqZ29yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY5NDAyMTQsImV4cCI6MjA3MjUxNjIxNH0.KTGb60g1dJqMq-E1moJsxiHiU1c2p6XoKhtm4ytuiCA
+      - key: JWT_SECRET
+        value: locksafe_jwt_secret_producao_2024
+      - key: PORT
+        value: 10000
