@@ -2,15 +2,37 @@ import express from "express";
 import cors from "cors";
 import authRoutes from "./routes/authRoutes.js";
 import { supabase } from "./config/supabaseClient.js";
+import dotenv from "dotenv";
+
+// ✅ Carregar variáveis de ambiente
+dotenv.config();
 
 const app = express();
 
-// ✅ CORS - permite TODAS as origens
-app.use(cors({ 
-  origin: "http://localhost:3000"  // Apenas porta 3000
+// ✅ VERIFICAÇÃO DAS VARIÁVEIS DE AMBIENTE
+console.log('🔑 === VERIFICANDO VARIÁVEIS DE AMBIENTE ===');
+console.log('SUPABASE_URL:', process.env.SUPABASE_URL ? '✅ CONFIGURADA' : '❌ FALTANDO');
+console.log('SUPABASE_ANON_KEY:', process.env.SUPABASE_ANON_KEY ? '✅ CONFIGURADA' : '❌ FALTANDO');
+console.log('JWT_SECRET:', process.env.JWT_SECRET ? '✅ CONFIGURADA' : '❌ FALTANDO');
+
+// ✅ CORS CONFIG CORRIGIDA
+app.use(cors({
+  origin: true, // Permite todas as origens para teste
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "Accept"]
 }));
 
+// ✅ Preflight requests
+app.options('*', cors());
+
 app.use(express.json());
+
+// ✅ Middleware de log para todas as requisições
+app.use((req, res, next) => {
+  console.log(`📥 ${req.method} ${req.path}`, req.body);
+  next();
+});
 
 // ✅ Rotas principais
 app.use("/api/auth", authRoutes);
@@ -22,7 +44,7 @@ app.get("/api/health", (req, res) => res.json({
   timestamp: new Date().toISOString()
 }));
 
-// ✅ Rota para listar usuários (para o componente Usuarios.js)
+// ✅ Rota para listar usuários
 app.get("/api/usuarios", async (req, res) => {
   try {
     console.log("📋 Listando usuários...");
@@ -46,7 +68,7 @@ app.get("/api/usuarios", async (req, res) => {
   }
 });
 
-// ✅ Rota de perfil do usuário (para o api.js)
+// ✅ Rota de perfil do usuário
 app.get("/api/users/profile", async (req, res) => {
   try {
     const token = req.headers.authorization?.replace('Bearer ', '');
@@ -55,8 +77,6 @@ app.get("/api/users/profile", async (req, res) => {
       return res.status(401).json({ error: "Token de autenticação necessário" });
     }
 
-    // Aqui você pode validar o JWT e buscar o usuário específico
-    // Por enquanto, retornamos uma mensagem de sucesso
     res.json({ 
       message: "Perfil do usuário",
       user: { id: "user-id", nome: "Usuário Teste", email: "teste@email.com" }
@@ -68,14 +88,12 @@ app.get("/api/users/profile", async (req, res) => {
   }
 });
 
-// ✅ Rota de redefinição de senha (para o RedefinirForm.js)
+// ✅ Rota de redefinição de senha
 app.post("/api/auth/redefinir-senha", async (req, res) => {
   try {
     const { email } = req.body;
     console.log("🔐 Solicitação de redefinição para:", email);
 
-    // Aqui você implementaria o envio de email
-    // Por enquanto, retornamos sucesso
     res.json({ 
       message: "Instruções de redefinição enviadas para seu email",
       email: email
