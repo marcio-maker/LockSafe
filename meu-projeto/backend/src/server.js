@@ -15,9 +15,22 @@ console.log('SUPABASE_URL:', process.env.SUPABASE_URL ? '✅ CONFIGURADA' : '❌
 console.log('SUPABASE_ANON_KEY:', process.env.SUPABASE_ANON_KEY ? '✅ CONFIGURADA' : '❌ FALTANDO');
 console.log('JWT_SECRET:', process.env.JWT_SECRET ? '✅ CONFIGURADA' : '❌ FALTANDO');
 
-// ✅ CORS CONFIG CORRIGIDA
+// ✅ CORS CONFIG CORRIGIDA PARA PRODUÇÃO
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://locksafe-frontend.onrender.com' // URL do frontend no Render
+];
+
 app.use(cors({
-  origin: true, // Permite todas as origens para teste
+  origin: function (origin, callback) {
+    // No Render (produção), não temos origin em algumas requisições
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.log('🚫 CORS bloqueado para:', origin);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization", "Accept"]
